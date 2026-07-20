@@ -9,22 +9,31 @@ document.addEventListener("DOMContentLoaded", function () {
   var createHomeCheckbox = document.getElementById("create_home");
 
   if (usernameInput && homeDirPreview) {
+    var userManuallyChanged = false;
     function updateHomeDirPreview() {
       var val = usernameInput.value.trim() || "username";
       homeDirPreview.textContent = val;
       if (createHomeCheckbox) {
-        var label = createHomeCheckbox.closest(".checkbox-label");
         if (val.toLowerCase() === "ironman") {
           createHomeCheckbox.checked = true;
           createHomeCheckbox.disabled = true;
-          if (label) label.style.opacity = "1";
         } else {
           createHomeCheckbox.disabled = false;
-          if (label) label.style.opacity = "1";
+          if (!userManuallyChanged) {
+            createHomeCheckbox.checked = true;
+          }
         }
       }
     }
-    usernameInput.addEventListener("input", updateHomeDirPreview);
+    usernameInput.addEventListener("input", function () {
+      userManuallyChanged = false;
+      updateHomeDirPreview();
+    });
+    if (createHomeCheckbox) {
+      createHomeCheckbox.addEventListener("change", function () {
+        userManuallyChanged = true;
+      });
+    }
     updateHomeDirPreview();
   }
 

@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   var confirmModal = document.getElementById("confirmModal");
   var confirmOkBtn = document.getElementById("confirmOkBtn");
+  var confirmHomeBtn = document.getElementById("confirmHomeBtn");
   var confirmCancelBtn = document.getElementById("confirmCancelBtn");
   var pendingForm = null;
 
@@ -17,6 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("confirmTitle").textContent = title;
     document.getElementById("confirmMessage").textContent = message;
     pendingForm = form;
+    if (confirmHomeBtn) confirmHomeBtn.style.display = "none";
     confirmModal.classList.add("show");
   }
 
@@ -28,6 +30,19 @@ document.addEventListener("DOMContentLoaded", function () {
   if (confirmOkBtn) {
     confirmOkBtn.addEventListener("click", function () {
       if (pendingForm) {
+        var homeInput = pendingForm.querySelector("input[name='remove_home']");
+        if (homeInput) homeInput.value = "0";
+        pendingForm.submit();
+      }
+      hideConfirm();
+    });
+  }
+
+  if (confirmHomeBtn) {
+    confirmHomeBtn.addEventListener("click", function () {
+      if (pendingForm) {
+        var homeInput = pendingForm.querySelector("input[name='remove_home']");
+        if (homeInput) homeInput.value = "1";
         pendingForm.submit();
       }
       hideConfirm();
@@ -71,6 +86,11 @@ document.addEventListener("DOMContentLoaded", function () {
         text = "Remove " + u + " from " + g + "?";
       } else if (form.classList.contains("delete-user-form")) {
         text = "Are you sure you want to delete this user? This cannot be undone.";
+        var home = form.getAttribute("data-home");
+        if (home && home !== "/" && home !== "" && home !== "None") {
+          document.getElementById("confirmMessage").textContent = "User has a home directory: " + home + ". Also remove the home directory?";
+          if (confirmHomeBtn) confirmHomeBtn.style.display = "";
+        }
       } else if (form.classList.contains("delete-group-form")) {
         text = "Are you sure you want to delete this group? This cannot be undone.";
       } else if (form.classList.contains("delete-sync-form")) {
@@ -78,7 +98,10 @@ document.addEventListener("DOMContentLoaded", function () {
       } else if (form.classList.contains("delete-audit-form")) {
         text = "Are you sure you want to delete all audit logs? This cannot be undone.";
       }
-      showConfirm("Confirm", text, form);
+      document.getElementById("confirmTitle").textContent = "Confirm";
+      document.getElementById("confirmMessage").textContent = text;
+      pendingForm = form;
+      confirmModal.classList.add("show");
     });
   });
 });

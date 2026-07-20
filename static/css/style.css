@@ -55,9 +55,9 @@ body {
 }
 a { color: var(--blue); text-decoration: none; transition: color var(--t); }
 a:hover { color: var(--magenta); }
-button, input { font: inherit; }
+button, input, select, textarea { font: inherit; }
 button { user-select: none; }
-input { appearance: none; -webkit-appearance: none; }
+input:not([type="checkbox"]):not([type="radio"]), select, textarea { appearance: none; -webkit-appearance: none; }
 
 .gradient-bg {
   position: fixed;

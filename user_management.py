@@ -272,12 +272,14 @@ def delete(username):
         flash("Cannot delete yourself.", "danger")
         return redirect(url_for("users.index"))
 
-    result = execute("userdel", [username])
+    remove_home = request.form.get("remove_home", "0") == "1"
+    args = ["-r", username] if remove_home else [username]
+    result = execute("userdel", args)
     if result["success"]:
         with get_db() as db:
             db.execute("DELETE FROM linux_users WHERE username=?", (username,))
             db.execute("DELETE FROM user_group_memberships WHERE username=?", (username,))
-        audit_log("user_delete", username, f"User '{username}' deleted.")
+        audit_log("user_delete", username, f"User '{username}' deleted.{' Home directory removed.' if remove_home else ''}")
         flash(f"User '{username}' deleted.", "success")
     else:
         flash(f"Failed to delete user: {result['stderr']}", "danger")

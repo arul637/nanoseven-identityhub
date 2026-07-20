@@ -70,7 +70,8 @@
                         </form>
                         {% endif %}
                         <a href="{{ url_for('users.change_password', username=user.username) }}" class="btn btn-sm btn-info">Password</a>
-                        <form method="POST" action="{{ url_for('users.delete', username=user.username) }}" style="display:inline" class="delete-user-form">
+                        <form method="POST" action="{{ url_for('users.delete', username=user.username) }}" style="display:inline" class="delete-user-form" data-home="{{ user.home_directory }}">
+                            <input type="hidden" name="remove_home" value="0">
                             <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                         </form>
                     </td>
