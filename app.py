@@ -53,6 +53,8 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
+    HOST = Config.HOST
+    PORT = Config.PORT
     mode = "MOCK MODE" if Config.MOCK_MODE else "LIVE SYSTEM MODE"
     print(f"Starting Linux User & Group Manager - {mode}")
-    app.run(debug=Config.DEBUG, host="0.0.0.0", port=5000)
+    app.run(debug=Config.DEBUG, host=HOST, port=PORT)

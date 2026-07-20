@@ -8,6 +8,8 @@ class Config:
     DATABASE_PATH = os.path.join(basedir, "database", "linux_manager.db")
     DEBUG = os.environ.get("FLASK_DEBUG", "True").lower() == "true"
     MOCK_MODE = os.environ.get("MOCK_MODE", "True").lower() == "true"
+    HOST = os.environ.get("HOST", "127.0.0.1")
+    PORT = os.environ.get("PORT", 5000)
     WTF_CSRF_ENABLED = True
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
