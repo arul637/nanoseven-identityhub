@@ -207,10 +207,12 @@ def delete_history():
         if ids:
             placeholders = ",".join("?" for _ in ids)
             db.execute(f"DELETE FROM sync_history WHERE id IN ({placeholders})", ids)
-            audit_log("sync_delete", "sync_history", f"Deleted {len(ids)} sync history entries.")
             flash(f"Deleted {len(ids)} sync history entries.", "success")
         else:
             db.execute("DELETE FROM sync_history")
-            audit_log("sync_delete", "sync_history", "All sync history cleared.")
             flash("All sync history cleared.", "success")
+    if ids:
+        audit_log("sync_delete", "sync_history", f"Deleted {len(ids)} sync history entries.")
+    else:
+        audit_log("sync_delete", "sync_history", "All sync history cleared.")
     return redirect(url_for("sync.index"))

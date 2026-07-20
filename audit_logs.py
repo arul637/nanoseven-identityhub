@@ -96,10 +96,12 @@ def delete():
         if ids:
             placeholders = ",".join("?" for _ in ids)
             db.execute(f"DELETE FROM audit_logs WHERE id IN ({placeholders})", ids)
-            audit_log("audit_delete", "audit_logs", f"Deleted {len(ids)} audit log entries.")
             flash(f"Deleted {len(ids)} audit log entries.", "success")
         else:
             db.execute("DELETE FROM audit_logs")
-            audit_log("audit_delete", "audit_logs", "All audit logs cleared.")
             flash("All audit logs cleared.", "success")
+    if ids:
+        audit_log("audit_delete", "audit_logs", f"Deleted {len(ids)} audit log entries.")
+    else:
+        audit_log("audit_delete", "audit_logs", "All audit logs cleared.")
     return redirect(url_for("audit.index"))

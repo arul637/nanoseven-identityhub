@@ -150,8 +150,7 @@ def create():
             for g in group_list:
                 execute("usermod", ["-aG", g, username])
 
-        echo_cmd = f"echo '{username}:{password}' | sudo chpasswd"
-        pw_result = execute("passwd", [username])
+        pw_result = execute("chpasswd", [], input_data=f"{username}:{password}")
         if not pw_result["success"]:
             flash(f"User created but password change failed: {pw_result['stderr']}", "warning")
 
@@ -331,7 +330,7 @@ def change_password(username):
                 flash(fb, "danger")
             return render_template("users/change_password.html", username=username)
 
-        result = execute("passwd", [username])
+        result = execute("chpasswd", [], input_data=f"{username}:{password}")
         if result["success"]:
             audit_log("password_change", username, f"Password changed for '{username}'.")
             flash(f"Password changed for '{username}'.", "success")

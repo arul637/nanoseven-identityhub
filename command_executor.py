@@ -7,6 +7,7 @@ ALLOWED_COMMANDS = {
     "usermod": {"min_args": 2, "prefix": ["usermod"]},
     "userdel": {"min_args": 1, "prefix": ["userdel"]},
     "passwd": {"min_args": 1, "prefix": ["passwd"]},
+    "chpasswd": {"min_args": 0, "prefix": ["chpasswd"]},
     "chage": {"min_args": 2, "prefix": ["chage"]},
     "groupadd": {"min_args": 1, "prefix": ["groupadd"]},
     "groupmod": {"min_args": 2, "prefix": ["groupmod"]},
@@ -24,6 +25,7 @@ MOCK_RESPONSES = {
     "usermod": {"success": True, "return_code": 0, "stdout": "", "stderr": ""},
     "userdel": {"success": True, "return_code": 0, "stdout": "", "stderr": ""},
     "passwd": {"success": True, "return_code": 0, "stdout": "", "stderr": ""},
+    "chpasswd": {"success": True, "return_code": 0, "stdout": "", "stderr": ""},
     "chage": {"success": True, "return_code": 0, "stdout": "", "stderr": ""},
     "groupadd": {"success": True, "return_code": 0, "stdout": "", "stderr": ""},
     "groupmod": {"success": True, "return_code": 0, "stdout": "", "stderr": ""},
@@ -44,7 +46,7 @@ def _sanitize_args(args):
     return sanitized
 
 
-def execute(command_key, args, timeout=None):
+def execute(command_key, args, timeout=None, input_data=None):
     if command_key not in ALLOWED_COMMANDS:
         return {
             "success": False,
@@ -84,6 +86,7 @@ def execute(command_key, args, timeout=None):
     try:
         proc = subprocess.run(
             cmd,
+            input=input_data,
             capture_output=True,
             text=True,
             timeout=timeout or Config.COMMAND_TIMEOUT,
