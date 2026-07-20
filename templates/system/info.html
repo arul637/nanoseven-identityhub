@@ -5,48 +5,41 @@
     <h1>System Information</h1>
 </div>
 
-<div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-value">{{ distro }}</div>
-        <div class="stat-label">Operating System</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value">{{ kernel }}</div>
-        <div class="stat-label">Kernel Version</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value">{{ hostname }}</div>
-        <div class="stat-label">Hostname</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value">{{ arch }}</div>
-        <div class="stat-label">Architecture</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value">{{ user_count }}</div>
-        <div class="stat-label">Users in Database</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value">{{ group_count }}</div>
-        <div class="stat-label">Groups in Database</div>
+<div class="card">
+    <div class="card-header"><h3>System Overview</h3></div>
+    <div class="card-body">
+        <table class="table">
+            <tbody>
+                <tr><td style="width:200px;font-weight:600">Operating System</td><td>{{ distro }}</td></tr>
+                <tr><td style="font-weight:600">Kernel Version</td><td>{{ kernel }}</td></tr>
+                <tr><td style="font-weight:600">Hostname</td><td>{{ hostname }}</td></tr>
+                <tr><td style="font-weight:600">Architecture</td><td>{{ arch }}</td></tr>
+                <tr><td style="font-weight:600">Users in Database</td><td>{{ user_count }}</td></tr>
+                <tr><td style="font-weight:600">Groups in Database</td><td>{{ group_count }}</td></tr>
+            </tbody>
+        </table>
     </div>
 </div>
 
 <div class="card">
     <div class="card-header"><h3>System Details</h3></div>
     <div class="card-body">
-        <dl class="detail-list">
-            <dt>Running User</dt><dd>{{ current_user }}</dd>
-            <dt>Mode</dt>
-            <dd>
-                {% if mock_mode %}
-                <span class="badge badge-warning">MOCK MODE - No system changes will be applied</span>
-                {% else %}
-                <span class="badge badge-success">LIVE SYSTEM MODE - Commands affect the actual system</span>
-                {% endif %}
-            </dd>
-            <dt>Last Synchronization</dt><dd>{{ last_sync or 'Never' }}</dd>
-        </dl>
+        <table class="table">
+            <tbody>
+                <tr><td style="width:200px;font-weight:600">Running User</td><td>{{ current_user }}</td></tr>
+                <tr>
+                    <td style="font-weight:600">Mode</td>
+                    <td>
+                        {% if mock_mode %}
+                        <span class="badge badge-warning">MOCK MODE - No system changes will be applied</span>
+                        {% else %}
+                        <span class="badge badge-success">LIVE SYSTEM MODE - Commands affect the actual system</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr><td style="font-weight:600">Last Synchronization</td><td>{{ last_sync or 'Never' }}</td></tr>
+            </tbody>
+        </table>
     </div>
 </div>
 {% endblock %}

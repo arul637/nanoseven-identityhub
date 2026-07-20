@@ -7,10 +7,11 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="app-container">
+    {% block body_start %}{% endblock %}
+    <div class="app-container{% if not session.admin_id %} app-container--auth{% endif %}">
         {% if session.admin_id %}
-        <aside class="sidebar">
-            <div class="sidebar-header">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header" id="sidebarToggle">
                 <h2>Linux Manager</h2>
                 {% if mock_mode %}
                 <span class="badge badge-warning">MOCK</span>
@@ -44,7 +45,7 @@
         </aside>
         {% endif %}
 
-        <main class="main-content">
+        <main class="main-content{% if not session.admin_id %} main-content--auth{% endif %}">
             {% if session.admin_id %}
             <header class="top-bar">
                 <div class="top-bar-left">
@@ -67,6 +68,17 @@
                 </div>
                 {% endif %}
                 {% endwith %}
+
+                <div class="modal-overlay" id="confirmModal">
+                    <div class="modal-box">
+                        <h3 id="confirmTitle">Confirm</h3>
+                        <p id="confirmMessage">Are you sure?</p>
+                        <div class="form-actions" style="justify-content:center;border:none;padding:0;margin:0">
+                            <button class="btn" id="confirmCancelBtn">Cancel</button>
+                            <button class="btn btn-danger" id="confirmOkBtn">Confirm</button>
+                        </div>
+                    </div>
+                </div>
 
                 {% block content %}{% endblock %}
             </div>

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from auth import login_required
 from database import get_db
 
@@ -77,3 +77,29 @@ def index():
         total_pages=total_pages,
         total=total,
     )
+
+
+def audit_log(action, target, description, result="success"):
+    from flask import session
+    with get_db() as db:
+        db.execute(
+            "INSERT INTO audit_logs (admin_username, action, target, description, result, ip_address) VALUES (?, ?, ?, ?, ?, ?)",
+            (session.get("admin_username", ""), action, target, description, result, ""),
+        )
+
+
+@audit_bp.route("/delete", methods=["POST"])
+@login_required
+def delete():
+    ids = request.form.getlist("ids")
+    with get_db() as db:
+        if ids:
+            placeholders = ",".join("?" for _ in ids)
+            db.execute(f"DELETE FROM audit_logs WHERE id IN ({placeholders})", ids)
+            audit_log("audit_delete", "audit_logs", f"Deleted {len(ids)} audit log entries.")
+            flash(f"Deleted {len(ids)} audit log entries.", "success")
+        else:
+            db.execute("DELETE FROM audit_logs")
+            audit_log("audit_delete", "audit_logs", "All audit logs cleared.")
+            flash("All audit logs cleared.", "success")
+    return redirect(url_for("audit.index"))

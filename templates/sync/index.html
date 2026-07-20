@@ -7,18 +7,32 @@
 
 <div class="card" style="text-align:center;padding:2rem;margin-bottom:2rem">
     <p>Synchronize users and groups from the Linux system into the local database.</p>
-    <form method="POST" action="{{ url_for('sync.run') }}" onsubmit="return confirm('Start system synchronization?')">
+    <form method="POST" action="{{ url_for('sync.run') }}" class="sync-run-form">
         <button type="submit" class="btn btn-primary btn-lg">Sync System Users & Groups</button>
     </form>
 </div>
 
 <div class="card">
-    <div class="card-header"><h3>Sync History</h3></div>
+    <div class="card-header">
+        <h3>Sync History</h3>
+        {% if history %}
+        <div class="header-actions">
+            <form method="POST" action="{{ url_for('sync.delete_history') }}" class="delete-sync-selected-form" style="display:inline">
+                <button type="submit" class="btn btn-sm btn-danger" id="deleteSelectedSync" disabled>Delete Selected</button>
+            </form>
+            <form method="POST" action="{{ url_for('sync.delete_history') }}" class="delete-sync-form" style="display:inline">
+                <button type="submit" class="btn btn-sm btn-danger">Clear All</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
     <div class="card-body">
         {% if history %}
+        <form method="POST" action="{{ url_for('sync.delete_history') }}" id="syncHistoryForm">
         <table class="table">
             <thead>
                 <tr>
+                    <th><input type="checkbox" id="selectAllSync"></th>
                     <th>Time</th>
                     <th>Users Found</th>
                     <th>New Users</th>
@@ -34,6 +48,7 @@
             <tbody>
                 {% for h in history %}
                 <tr>
+                    <td><input type="checkbox" name="ids" value="{{ h.id }}" class="sync-checkbox"></td>
                     <td class="text-muted">{{ h.created_at[:19] }}</td>
                     <td>{{ h.users_discovered }}</td>
                     <td>{{ h.new_users }}</td>
@@ -48,9 +63,58 @@
                 {% endfor %}
             </tbody>
         </table>
+        </form>
         {% else %}
         <div class="empty-state">No sync history yet. Run a synchronization to populate data.</div>
         {% endif %}
     </div>
 </div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var selectAll = document.getElementById("selectAllSync");
+    var checkboxes = document.querySelectorAll(".sync-checkbox");
+    var deleteBtn = document.getElementById("deleteSelectedSync");
+    var form = document.getElementById("syncHistoryForm");
+
+    if (selectAll) {
+        selectAll.addEventListener("change", function() {
+            checkboxes.forEach(function(cb) { cb.checked = selectAll.checked; });
+            deleteBtn.disabled = !selectAll.checked && !document.querySelector(".sync-checkbox:checked");
+        });
+    }
+
+    if (checkboxes.length > 0) {
+        checkboxes.forEach(function(cb) {
+            cb.addEventListener("change", function() {
+                var any = document.querySelector(".sync-checkbox:checked");
+                deleteBtn.disabled = !any;
+            });
+        });
+    }
+
+    if (deleteBtn && form) {
+        deleteBtn.addEventListener("click", function(e) {
+            e.preventDefault();
+            var checked = document.querySelectorAll(".sync-checkbox:checked");
+            if (checked.length === 0) return;
+            document.getElementById("confirmTitle").textContent = "Delete Selected";
+            document.getElementById("confirmMessage").textContent = "Delete " + checked.length + " selected sync history entries?";
+            document.getElementById("confirmModal").classList.add("show");
+            window._pendingSyncForm = form;
+        });
+    }
+
+    var confirmOkBtn = document.getElementById("confirmOkBtn");
+    if (confirmOkBtn) {
+        confirmOkBtn.addEventListener("click", function() {
+            if (window._pendingSyncForm) {
+                window._pendingSyncForm.submit();
+                window._pendingSyncForm = null;
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

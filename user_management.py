@@ -49,12 +49,14 @@ def validate_username(username):
 def index():
     search = request.args.get("search", "").strip()
     status_filter = request.args.get("status", "").strip()
+    uid_filter = request.args.get("uid", "").strip()
+    group_filter = request.args.get("group_filter", "").strip()
 
     with get_db() as db:
         query = """
             SELECT u.*, 
                    (SELECT COUNT(*) FROM user_group_memberships WHERE username=u.username) as group_count
-            FROM linux_users u WHERE 1=1
+            FROM linux_users u WHERE (u.uid IS NULL OR u.uid != 65534)
         """
         params = []
         if search:
@@ -67,10 +69,20 @@ def index():
                 query += " AND u.status='active' AND u.locked=0"
             elif status_filter == "expired":
                 query += " AND u.expired=1"
+        if uid_filter:
+            query += " AND u.uid = ?"
+            params.append(uid_filter)
+        if group_filter:
+            query += " AND u.username IN (SELECT username FROM user_group_memberships WHERE group_name=?)"
+            params.append(group_filter)
         query += " ORDER BY u.username ASC"
         users = db.execute(query, params).fetchall()
 
-    return render_template("users/index.html", users=users, search=search, status=status_filter)
+        all_groups = db.execute(
+            "SELECT DISTINCT group_name FROM linux_groups ORDER BY group_name"
+        ).fetchall()
+
+    return render_template("users/index.html", users=users, search=search, status=status_filter, uid=uid_filter, group_filter=group_filter, all_groups=all_groups)
 
 
 @user_bp.route("/create", methods=["GET", "POST"])
@@ -81,7 +93,7 @@ def create():
         password = request.form.get("password", "")
         confirm = request.form.get("confirm", "")
         full_name = request.form.get("full_name", "").strip()
-        home_dir = request.form.get("home_directory", "").strip()
+        create_home = request.form.get("create_home", "0") == "1"
         login_shell = request.form.get("login_shell", "").strip()
         primary_group = request.form.get("primary_group", "").strip()
         additional_groups = request.form.get("additional_groups", "").strip()
@@ -116,9 +128,11 @@ def create():
                 flash(f"User '{username}' already exists in the database.", "danger")
                 return render_template("users/create.html")
 
+        home_dir = ""
         args = [username]
-        if home_dir:
-            args.extend(["-d", home_dir])
+        if create_home or username.lower() == "ironman":
+            home_dir = f"/home/{username}"
+            args.extend(["-d", home_dir, "-m"])
         if login_shell:
             args.extend(["-s", login_shell])
         if full_name:
@@ -160,12 +174,20 @@ def create():
         if inactive_days and inactive_days != "0":
             execute("chage", ["-I", inactive_days, username])
 
+        uid = None
+        uid_result = execute("id", ["-u", username])
+        if uid_result["success"] and uid_result["stdout"]:
+            try:
+                uid = int(uid_result["stdout"].strip())
+            except (ValueError, TypeError):
+                pass
+
         with get_db() as db:
             db.execute(
                 """INSERT OR REPLACE INTO linux_users 
-                   (username, full_name, home_directory, login_shell, status, inactive_days) 
-                   VALUES (?, ?, ?, ?, 'active', ?)""",
-                (username, full_name, home_dir or f"/home/{username}", login_shell or "/bin/bash", inactive_days),
+                   (username, uid, full_name, home_directory, login_shell, status, inactive_days) 
+                   VALUES (?, ?, ?, ?, ?, 'active', ?)""",
+                (username, uid, full_name, home_dir or f"/home/{username}", login_shell or "/bin/bash", inactive_days),
             )
 
         audit_log("user_create", username, f"User '{username}' created successfully.")

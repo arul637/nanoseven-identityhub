@@ -10,11 +10,16 @@
     <div class="card-header">
         <form method="GET" class="search-form">
             <input type="text" name="search" placeholder="Search groups..." value="{{ search }}" class="search-input">
+            <input type="number" name="gid" placeholder="Filter by GID" value="{{ gid }}" class="search-input" style="max-width:120px">
             <button type="submit" class="btn btn-sm">Filter</button>
         </form>
     </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><h3>User Groups (GID >= 1000)</h3></div>
     <div class="card-body">
-        {% if groups %}
+        {% if user_groups %}
         <table class="table">
             <thead>
                 <tr>
@@ -26,7 +31,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for group in groups %}
+                {% for group in user_groups %}
                 <tr>
                     <td><strong>{{ group.group_name }}</strong></td>
                     <td>{{ group.gid or '-' }}</td>
@@ -40,7 +45,7 @@
                     </td>
                     <td class="actions">
                         <a href="{{ url_for('groups.view', group_name=group.group_name) }}" class="btn btn-sm">View</a>
-                        <form method="POST" action="{{ url_for('groups.delete', group_name=group.group_name) }}" style="display:inline" onsubmit="return confirm('Delete group {{ group.group_name }}?')">
+                        <form method="POST" action="{{ url_for('groups.delete', group_name=group.group_name) }}" style="display:inline" class="delete-group-form">
                             <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                         </form>
                     </td>
@@ -49,11 +54,54 @@
             </tbody>
         </table>
         {% else %}
-        <div class="empty-state">
-            <p>No groups found.</p>
-            <a href="{{ url_for('groups.create') }}" class="btn btn-primary">Create First Group</a>
-        </div>
+        <div class="empty-state"><p>No user groups found.</p></div>
         {% endif %}
     </div>
 </div>
+
+<div class="card">
+    <div class="card-header"><h3>System Groups (GID < 1000)</h3></div>
+    <div class="card-body">
+        {% if system_groups %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Group Name</th>
+                    <th>GID</th>
+                    <th>Members</th>
+                    <th>Privileged</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for group in system_groups %}
+                <tr>
+                    <td><strong>{{ group.group_name }}</strong></td>
+                    <td>{{ group.gid or '-' }}</td>
+                    <td>{{ group.member_count }}</td>
+                    <td>
+                        {% if group.group_name in privileged %}
+                        <span class="badge badge-warning">Privileged</span>
+                        {% else %}
+                        <span class="badge badge-secondary">Standard</span>
+                        {% endif %}
+                    </td>
+                    <td class="actions">
+                        <a href="{{ url_for('groups.view', group_name=group.group_name) }}" class="btn btn-sm">View</a>
+                        <form method="POST" action="{{ url_for('groups.delete', group_name=group.group_name) }}" style="display:inline" class="delete-group-form">
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state"><p>No system groups found.</p></div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/groups.js') }}"></script>
 {% endblock %}

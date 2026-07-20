@@ -39,6 +39,7 @@ def get_groups_require_confirmation():
 @login_required
 def index():
     search = request.args.get("search", "").strip()
+    gid_filter = request.args.get("gid", "").strip()
 
     with get_db() as db:
         query = """
@@ -49,11 +50,17 @@ def index():
         if search:
             query += " AND g.group_name LIKE ?"
             params.append(f"%{search}%")
+        if gid_filter:
+            query += " AND g.gid = ?"
+            params.append(gid_filter)
         query += " ORDER BY g.group_name ASC"
         groups = db.execute(query, params).fetchall()
 
+    system_groups = [g for g in groups if g["gid"] is None or g["gid"] < 1000]
+    user_groups = [g for g in groups if g["gid"] is not None and g["gid"] >= 1000]
+
     privileged = get_privileged_groups()
-    return render_template("groups/index.html", groups=groups, search=search, privileged=privileged)
+    return render_template("groups/index.html", user_groups=user_groups, system_groups=system_groups, search=search, gid=gid_filter, privileged=privileged)
 
 
 @group_bp.route("/create", methods=["GET", "POST"])
@@ -76,11 +83,17 @@ def create():
 
         result = execute("groupadd", [group_name])
         if result["success"]:
+            gid = None
+            gid_result = execute("getent", ["group", group_name])
+            if gid_result["success"] and gid_result["stdout"]:
+                parts = gid_result["stdout"].strip().split(":")
+                if len(parts) >= 3 and parts[2].isdigit():
+                    gid = int(parts[2])
             privileged = group_name in get_privileged_groups()
             with get_db() as db:
                 db.execute(
-                    "INSERT INTO linux_groups (group_name, privileged) VALUES (?, ?)",
-                    (group_name, 1 if privileged else 0),
+                    "INSERT INTO linux_groups (group_name, gid, privileged) VALUES (?, ?, ?)",
+                    (group_name, gid, 1 if privileged else 0),
                 )
             audit_log("group_create", group_name, f"Group '{group_name}' created.")
             flash(f"Group '{group_name}' created.", "success")

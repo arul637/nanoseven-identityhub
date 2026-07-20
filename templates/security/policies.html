@@ -26,18 +26,18 @@
                     <input type="number" id="password_history" name="password_history" value="{{ v.policy_value if v else '5' }}" min="0">
                 </div>
             </div>
-            <div class="form-row">
+            <div class="form-row checkbox-group">
                 <div class="form-group">
-                    <label><input type="checkbox" name="require_uppercase" value="true" {{ 'checked' if (policies|selectattr('policy_key', 'equalto', 'require_uppercase')|first).policy_value == 'true' else '' }}> Require Uppercase</label>
+                    <label class="checkbox-label"><input type="checkbox" name="require_uppercase" value="true" {{ 'checked' if (policies|selectattr('policy_key', 'equalto', 'require_uppercase')|first).policy_value == 'true' else '' }}> Require Uppercase</label>
                 </div>
                 <div class="form-group">
-                    <label><input type="checkbox" name="require_lowercase" value="true" {{ 'checked' if (policies|selectattr('policy_key', 'equalto', 'require_lowercase')|first).policy_value == 'true' else '' }}> Require Lowercase</label>
+                    <label class="checkbox-label"><input type="checkbox" name="require_lowercase" value="true" {{ 'checked' if (policies|selectattr('policy_key', 'equalto', 'require_lowercase')|first).policy_value == 'true' else '' }}> Require Lowercase</label>
                 </div>
                 <div class="form-group">
-                    <label><input type="checkbox" name="require_number" value="true" {{ 'checked' if (policies|selectattr('policy_key', 'equalto', 'require_number')|first).policy_value == 'true' else '' }}> Require Number</label>
+                    <label class="checkbox-label"><input type="checkbox" name="require_number" value="true" {{ 'checked' if (policies|selectattr('policy_key', 'equalto', 'require_number')|first).policy_value == 'true' else '' }}> Require Number</label>
                 </div>
                 <div class="form-group">
-                    <label><input type="checkbox" name="require_special" value="true" {{ 'checked' if (policies|selectattr('policy_key', 'equalto', 'require_special')|first).policy_value == 'true' else '' }}> Require Special Character</label>
+                    <label class="checkbox-label"><input type="checkbox" name="require_special" value="true" {{ 'checked' if (policies|selectattr('policy_key', 'equalto', 'require_special')|first).policy_value == 'true' else '' }}> Require Special Character</label>
                 </div>
             </div>
         </div>

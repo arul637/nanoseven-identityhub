@@ -40,7 +40,7 @@
                         <td><a href="{{ url_for('users.view', username=m.username) }}">{{ m.username }}</a></td>
                         <td class="text-muted">{{ m.added_at[:19] }}</td>
                         <td>
-                            <form method="POST" action="{{ url_for('groups.remove_user', group_name=group.group_name) }}" style="display:inline" onsubmit="return confirm('Remove {{ m.username }} from {{ group.group_name }}?')">
+                            <form method="POST" action="{{ url_for('groups.remove_user', group_name=group.group_name) }}" style="display:inline" class="remove-member-form" data-username="{{ m.username }}" data-group="{{ group.group_name }}">
                                 <input type="hidden" name="username" value="{{ m.username }}">
                                 <button type="submit" class="btn btn-sm btn-danger">Remove</button>
                             </form>

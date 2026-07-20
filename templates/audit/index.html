@@ -4,6 +4,16 @@
 <div class="page-header">
     <h1>Audit Logs</h1>
     <span class="text-muted">{{ total }} entries</span>
+    <div class="header-actions">
+        {% if total > 0 %}
+        <form method="POST" action="{{ url_for('audit.delete') }}" class="delete-audit-selected-form" style="display:inline">
+            <button type="submit" class="btn btn-sm btn-danger" id="deleteSelectedAudit" disabled>Delete Selected</button>
+        </form>
+        <form method="POST" action="{{ url_for('audit.delete') }}" class="delete-audit-form" style="display:inline">
+            <button type="submit" class="btn btn-sm btn-danger">Clear All</button>
+        </form>
+        {% endif %}
+    </div>
 </div>
 
 <div class="card">
@@ -29,9 +39,11 @@
     </div>
     <div class="card-body">
         {% if logs %}
+        <form method="POST" action="{{ url_for('audit.delete') }}" id="auditLogForm">
         <table class="table">
             <thead>
                 <tr>
+                    <th><input type="checkbox" id="selectAllAudit"></th>
                     <th>Time</th>
                     <th>Admin</th>
                     <th>Action</th>
@@ -43,6 +55,7 @@
             <tbody>
                 {% for log in logs %}
                 <tr>
+                    <td><input type="checkbox" name="ids" value="{{ log.id }}" class="audit-checkbox"></td>
                     <td class="text-muted">{{ log.created_at[:19] }}</td>
                     <td>{{ log.admin_username }}</td>
                     <td><code>{{ log.action }}</code></td>
@@ -53,6 +66,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        </form>
 
         {% if total_pages > 1 %}
         <div class="pagination">
@@ -67,4 +81,52 @@
         {% endif %}
     </div>
 </div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var selectAll = document.getElementById("selectAllAudit");
+    var checkboxes = document.querySelectorAll(".audit-checkbox");
+    var deleteBtn = document.getElementById("deleteSelectedAudit");
+    var form = document.getElementById("auditLogForm");
+
+    if (selectAll) {
+        selectAll.addEventListener("change", function() {
+            checkboxes.forEach(function(cb) { cb.checked = selectAll.checked; });
+            deleteBtn.disabled = !selectAll.checked && !document.querySelector(".audit-checkbox:checked");
+        });
+    }
+
+    if (checkboxes.length > 0) {
+        checkboxes.forEach(function(cb) {
+            cb.addEventListener("change", function() {
+                var any = document.querySelector(".audit-checkbox:checked");
+                deleteBtn.disabled = !any;
+            });
+        });
+    }
+
+    if (deleteBtn && form) {
+        deleteBtn.addEventListener("click", function(e) {
+            e.preventDefault();
+            var checked = document.querySelectorAll(".audit-checkbox:checked");
+            if (checked.length === 0) return;
+            document.getElementById("confirmTitle").textContent = "Delete Selected";
+            document.getElementById("confirmMessage").textContent = "Delete " + checked.length + " selected audit log entries?";
+            document.getElementById("confirmModal").classList.add("show");
+            window._pendingAuditForm = form;
+        });
+    }
+
+    var confirmOkBtn = document.getElementById("confirmOkBtn");
+    if (confirmOkBtn) {
+        confirmOkBtn.addEventListener("click", function() {
+            if (window._pendingAuditForm) {
+                window._pendingAuditForm.submit();
+                window._pendingAuditForm = null;
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

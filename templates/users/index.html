@@ -9,12 +9,19 @@
 <div class="card">
     <div class="card-header">
         <form method="GET" class="search-form">
-            <input type="text" name="search" placeholder="Search users..." value="{{ search }}" class="search-input">
+            <input type="text" name="search" placeholder="Search by name..." value="{{ search }}" class="search-input">
+            <input type="number" name="uid" placeholder="Filter by UID" value="{{ uid }}" class="search-input" style="max-width:120px">
             <select name="status" class="filter-select">
                 <option value="">All Status</option>
                 <option value="active" {{ 'selected' if status == 'active' }}>Active</option>
                 <option value="locked" {{ 'selected' if status == 'locked' }}>Locked</option>
                 <option value="expired" {{ 'selected' if status == 'expired' }}>Expired</option>
+            </select>
+            <select name="group_filter" class="filter-select">
+                <option value="">All Groups</option>
+                {% for g in all_groups %}
+                <option value="{{ g.group_name }}" {{ 'selected' if group_filter == g.group_name }}>{{ g.group_name }}</option>
+                {% endfor %}
             </select>
             <button type="submit" class="btn btn-sm">Filter</button>
         </form>
@@ -38,7 +45,7 @@
                 <tr>
                     <td><strong>{{ user.username }}</strong></td>
                     <td>{{ user.uid or '-' }}</td>
-                    <td class="text-muted">{{ user.home_directory }}</td>
+                    <td class="text-muted" style="word-break:break-word;max-width:180px">{{ user.home_directory }}</td>
                     <td><code>{{ user.login_shell }}</code></td>
                     <td>
                         {% if user.locked %}
@@ -63,7 +70,7 @@
                         </form>
                         {% endif %}
                         <a href="{{ url_for('users.change_password', username=user.username) }}" class="btn btn-sm btn-info">Password</a>
-                        <form method="POST" action="{{ url_for('users.delete', username=user.username) }}" style="display:inline" onsubmit="return confirm('Delete user {{ user.username }}? This cannot be undone.')">
+                        <form method="POST" action="{{ url_for('users.delete', username=user.username) }}" style="display:inline" class="delete-user-form">
                             <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                         </form>
                     </td>

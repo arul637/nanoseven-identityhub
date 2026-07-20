@@ -197,3 +197,20 @@ def run():
         "success",
     )
     return redirect(url_for("sync.index"))
+
+
+@sync_bp.route("/delete_history", methods=["POST"])
+@login_required
+def delete_history():
+    ids = request.form.getlist("ids")
+    with get_db() as db:
+        if ids:
+            placeholders = ",".join("?" for _ in ids)
+            db.execute(f"DELETE FROM sync_history WHERE id IN ({placeholders})", ids)
+            audit_log("sync_delete", "sync_history", f"Deleted {len(ids)} sync history entries.")
+            flash(f"Deleted {len(ids)} sync history entries.", "success")
+        else:
+            db.execute("DELETE FROM sync_history")
+            audit_log("sync_delete", "sync_history", "All sync history cleared.")
+            flash("All sync history cleared.", "success")
+    return redirect(url_for("sync.index"))

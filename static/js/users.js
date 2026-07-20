@@ -5,7 +5,28 @@ document.addEventListener("DOMContentLoaded", function () {
   var strengthBar = document.getElementById("strengthBar");
   var strengthFeedback = document.getElementById("passwordFeedback");
   var usernameFeedback = document.getElementById("usernameFeedback");
-  var generateBtn = document.getElementById("generatePasswordBtn");
+  var homeDirPreview = document.getElementById("homeDirPreview");
+  var createHomeCheckbox = document.getElementById("create_home");
+
+  if (usernameInput && homeDirPreview) {
+    function updateHomeDirPreview() {
+      var val = usernameInput.value.trim() || "username";
+      homeDirPreview.textContent = val;
+      if (createHomeCheckbox) {
+        var label = createHomeCheckbox.closest(".checkbox-label");
+        if (val.toLowerCase() === "ironman") {
+          createHomeCheckbox.checked = true;
+          createHomeCheckbox.disabled = true;
+          if (label) label.style.opacity = "1";
+        } else {
+          createHomeCheckbox.disabled = false;
+          if (label) label.style.opacity = "1";
+        }
+      }
+    }
+    usernameInput.addEventListener("input", updateHomeDirPreview);
+    updateHomeDirPreview();
+  }
 
   if (usernameInput) {
     usernameInput.addEventListener("blur", function () {
@@ -36,20 +57,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  if (generateBtn) {
-    generateBtn.addEventListener("click", function () {
-      fetch("/users/api/generate_password")
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          if (passwordInput) {
-            passwordInput.value = data.password;
-            if (confirmInput) confirmInput.value = data.password;
-            checkPassword(data.password);
-          }
-        });
-    });
-  }
-
   function checkPassword(pw) {
     if (!strengthBar) return;
     var username = usernameInput ? usernameInput.value.trim() : "";
@@ -73,11 +80,4 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   }
 
-  var forms = document.querySelectorAll("form[method=POST]");
-  forms.forEach(function (f) {
-    f.addEventListener("submit", function () {
-      var btn = this.querySelector("button[type=submit]");
-      if (btn) btn.disabled = true;
-    });
-  });
 });
