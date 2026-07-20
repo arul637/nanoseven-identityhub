@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Create User - Linux Manager{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Create User</h1>
+    <a href="{{ url_for('users.index') }}" class="btn btn-sm">Back to Users</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST" class="form" id="createUserForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="username">Username <span class="required">*</span></label>
+                    <input type="text" id="username" name="username" placeholder="e.g. johndoe" required>
+                    <small class="form-text" id="usernameFeedback"></small>
+                </div>
+                <div class="form-group">
+                    <label for="full_name">Full Name</label>
+                    <input type="text" id="full_name" name="full_name" placeholder="e.g. John Doe">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password">Password <span class="required">*</span></label>
+                    <div class="password-input-group">
+                        <input type="password" id="password" name="password" placeholder="Password" required>
+                        <button type="button" class="btn btn-sm btn-info" id="generatePasswordBtn">Generate</button>
+                    </div>
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-bar" id="strengthBar"></div>
+                    </div>
+                    <small class="form-text" id="passwordFeedback"></small>
+                </div>
+                <div class="form-group">
+                    <label for="confirm">Confirm Password <span class="required">*</span></label>
+                    <input type="password" id="confirm" name="confirm" placeholder="Confirm password" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="home_directory">Home Directory</label>
+                    <input type="text" id="home_directory" name="home_directory" placeholder="/home/username">
+                </div>
+                <div class="form-group">
+                    <label for="login_shell">Login Shell</label>
+                    <select id="login_shell" name="login_shell">
+                        <option value="/bin/bash">/bin/bash</option>
+                        <option value="/bin/sh">/bin/sh</option>
+                        <option value="/bin/zsh">/bin/zsh</option>
+                        <option value="/bin/dash">/bin/dash</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="primary_group">Primary Group</label>
+                    <input type="text" id="primary_group" name="primary_group" placeholder="e.g. users">
+                </div>
+                <div class="form-group">
+                    <label for="additional_groups">Additional Groups (comma-separated)</label>
+                    <input type="text" id="additional_groups" name="additional_groups" placeholder="e.g. wheel,docker">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="account_expires">Account Expiration</label>
+                    <input type="date" id="account_expires" name="account_expires">
+                </div>
+                <div class="form-group">
+                    <label for="password_expires">Password Expiration</label>
+                    <input type="date" id="password_expires" name="password_expires">
+                </div>
+                <div class="form-group">
+                    <label for="inactive_days">Inactive Days</label>
+                    <input type="number" id="inactive_days" name="inactive_days" value="0" min="0">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Create User</button>
+                <a href="{{ url_for('users.index') }}" class="btn">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/users.js') }}"></script>
+{% endblock %}

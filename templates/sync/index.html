@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}System Sync - Linux Manager{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>System Synchronization</h1>
+</div>
+
+<div class="card" style="text-align:center;padding:2rem;margin-bottom:2rem">
+    <p>Synchronize users and groups from the Linux system into the local database.</p>
+    <form method="POST" action="{{ url_for('sync.run') }}" onsubmit="return confirm('Start system synchronization?')">
+        <button type="submit" class="btn btn-primary btn-lg">Sync System Users & Groups</button>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header"><h3>Sync History</h3></div>
+    <div class="card-body">
+        {% if history %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Users Found</th>
+                    <th>New Users</th>
+                    <th>Updated Users</th>
+                    <th>Missing Users</th>
+                    <th>Groups Found</th>
+                    <th>New Groups</th>
+                    <th>Updated Groups</th>
+                    <th>Duration</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for h in history %}
+                <tr>
+                    <td class="text-muted">{{ h.created_at[:19] }}</td>
+                    <td>{{ h.users_discovered }}</td>
+                    <td>{{ h.new_users }}</td>
+                    <td>{{ h.updated_users }}</td>
+                    <td>{{ h.missing_users }}</td>
+                    <td>{{ h.groups_discovered }}</td>
+                    <td>{{ h.new_groups }}</td>
+                    <td>{{ h.updated_groups }}</td>
+                    <td>{{ h.duration_ms }}ms</td>
+                    <td><span class="badge badge-{{ 'success' if h.result == 'success' else 'danger' }}">{{ h.result }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">No sync history yet. Run a synchronization to populate data.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

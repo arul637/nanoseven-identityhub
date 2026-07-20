@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Group: {{ group.group_name }} - Linux Manager{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Group: {{ group.group_name }}</h1>
+    <div class="header-actions">
+        <a href="{{ url_for('groups.index') }}" class="btn btn-sm">Back</a>
+    </div>
+</div>
+
+<div class="detail-grid">
+    <div class="card">
+        <div class="card-header"><h3>Group Details</h3></div>
+        <div class="card-body">
+            <dl class="detail-list">
+                <dt>Group Name</dt><dd>{{ group.group_name }}</dd>
+                <dt>GID</dt><dd>{{ group.gid or 'Not set' }}</dd>
+                <dt>Privileged</dt><dd>{{ 'Yes' if group.privileged else 'No' }}</dd>
+                <dt>Created</dt><dd>{{ group.created_at[:19] }}</dd>
+            </dl>
+
+            <form method="POST" action="{{ url_for('groups.rename', group_name=group.group_name) }}" class="inline-form" style="margin-top:1rem">
+                <input type="text" name="new_name" placeholder="New name" required>
+                <button type="submit" class="btn btn-sm btn-warning">Rename Group</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>Members ({{ members|length }})</h3>
+        </div>
+        <div class="card-body">
+            {% if members %}
+            <table class="table">
+                <thead><tr><th>Username</th><th>Added</th><th>Actions</th></tr></thead>
+                <tbody>
+                    {% for m in members %}
+                    <tr>
+                        <td><a href="{{ url_for('users.view', username=m.username) }}">{{ m.username }}</a></td>
+                        <td class="text-muted">{{ m.added_at[:19] }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('groups.remove_user', group_name=group.group_name) }}" style="display:inline" onsubmit="return confirm('Remove {{ m.username }} from {{ group.group_name }}?')">
+                                <input type="hidden" name="username" value="{{ m.username }}">
+                                <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">No members in this group.</div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('groups.add_user', group_name=group.group_name) }}" class="inline-form">
+                <select name="username" required>
+                    <option value="">Select user...</option>
+                    {% for u in non_members %}
+                    <option value="{{ u.username }}">{{ u.username }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-sm btn-primary">Add Member</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

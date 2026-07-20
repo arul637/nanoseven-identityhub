@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Groups - Linux Manager{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Group Management</h1>
+    <a href="{{ url_for('groups.create') }}" class="btn btn-primary">+ Create Group</a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <form method="GET" class="search-form">
+            <input type="text" name="search" placeholder="Search groups..." value="{{ search }}" class="search-input">
+            <button type="submit" class="btn btn-sm">Filter</button>
+        </form>
+    </div>
+    <div class="card-body">
+        {% if groups %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Group Name</th>
+                    <th>GID</th>
+                    <th>Members</th>
+                    <th>Privileged</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for group in groups %}
+                <tr>
+                    <td><strong>{{ group.group_name }}</strong></td>
+                    <td>{{ group.gid or '-' }}</td>
+                    <td>{{ group.member_count }}</td>
+                    <td>
+                        {% if group.group_name in privileged %}
+                        <span class="badge badge-warning">Privileged</span>
+                        {% else %}
+                        <span class="badge badge-secondary">Standard</span>
+                        {% endif %}
+                    </td>
+                    <td class="actions">
+                        <a href="{{ url_for('groups.view', group_name=group.group_name) }}" class="btn btn-sm">View</a>
+                        <form method="POST" action="{{ url_for('groups.delete', group_name=group.group_name) }}" style="display:inline" onsubmit="return confirm('Delete group {{ group.group_name }}?')">
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <p>No groups found.</p>
+            <a href="{{ url_for('groups.create') }}" class="btn btn-primary">Create First Group</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

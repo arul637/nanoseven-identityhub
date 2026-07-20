@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Confirm Group Addition - Linux Manager{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Confirm Group Membership</h1>
+</div>
+
+<div class="card">
+    <div class="card-body" style="text-align:center;padding:3rem">
+        <div class="warning-icon">&#9888;</div>
+        <h2>Warning: Privileged Group</h2>
+        <p>You are about to add <strong>{{ username }}</strong> to the privileged group <strong>{{ group_name }}</strong>.</p>
+        <p>This may grant elevated privileges. Please confirm this action.</p>
+        <form method="POST" action="{{ url_for('groups.add_user', group_name=group_name) }}">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" name="confirmed" value="1">
+            <button type="submit" class="btn btn-warning">Yes, Add to {{ group_name }}</button>
+            <a href="{{ url_for('groups.view', group_name=group_name) }}" class="btn">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

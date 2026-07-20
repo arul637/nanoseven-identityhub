@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Edit User - Linux Manager{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Edit User: {{ user.username }}</h1>
+    <a href="{{ url_for('users.view', username=user.username) }}" class="btn btn-sm">View User</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST" class="form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="full_name">Full Name</label>
+                    <input type="text" id="full_name" name="full_name" value="{{ user.full_name or '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="home_directory">Home Directory</label>
+                    <input type="text" id="home_directory" name="home_directory" value="{{ user.home_directory }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="login_shell">Login Shell</label>
+                    <select id="login_shell" name="login_shell">
+                        <option value="/bin/bash" {{ 'selected' if user.login_shell == '/bin/bash' }}>/bin/bash</option>
+                        <option value="/bin/sh" {{ 'selected' if user.login_shell == '/bin/sh' }}>/bin/sh</option>
+                        <option value="/bin/zsh" {{ 'selected' if user.login_shell == '/bin/zsh' }}>/bin/zsh</option>
+                        <option value="/bin/dash" {{ 'selected' if user.login_shell == '/bin/dash' }}>/bin/dash</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="account_expires">Account Expiration</label>
+                    <input type="date" id="account_expires" name="account_expires" value="{{ user.account_expires[:10] if user.account_expires else '' }}">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="{{ url_for('users.view', username=user.username) }}" class="btn">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

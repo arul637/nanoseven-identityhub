@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Audit Logs - Linux Manager{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Audit Logs</h1>
+    <span class="text-muted">{{ total }} entries</span>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <form method="GET" class="search-form audit-filters">
+            <input type="text" name="search" placeholder="Search targets, descriptions..." value="{{ search }}" class="search-input">
+            <select name="action">
+                <option value="">All Actions</option>
+                {% for a in actions %}
+                <option value="{{ a.action }}" {{ 'selected' if action_filter == a.action }}>{{ a.action }}</option>
+                {% endfor %}
+            </select>
+            <select name="admin">
+                <option value="">All Admins</option>
+                {% for a in admins %}
+                <option value="{{ a.admin_username }}" {{ 'selected' if admin_filter == a.admin_username }}>{{ a.admin_username }}</option>
+                {% endfor %}
+            </select>
+            <input type="date" name="date_from" value="{{ date_from }}">
+            <input type="date" name="date_to" value="{{ date_to }}">
+            <button type="submit" class="btn btn-sm">Filter</button>
+        </form>
+    </div>
+    <div class="card-body">
+        {% if logs %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Admin</th>
+                    <th>Action</th>
+                    <th>Target</th>
+                    <th>Description</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td class="text-muted">{{ log.created_at[:19] }}</td>
+                    <td>{{ log.admin_username }}</td>
+                    <td><code>{{ log.action }}</code></td>
+                    <td>{{ log.target }}</td>
+                    <td>{{ log.description }}</td>
+                    <td><span class="badge badge-{{ 'success' if log.result == 'success' else 'danger' }}">{{ log.result }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if total_pages > 1 %}
+        <div class="pagination">
+            {% for p in range(1, total_pages + 1) %}
+            <a href="?page={{ p }}&search={{ search }}&action={{ action_filter }}&admin={{ admin_filter }}&date_from={{ date_from }}&date_to={{ date_to }}" class="btn btn-sm {{ 'btn-primary' if p == page else '' }}">{{ p }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="empty-state">No audit logs found.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

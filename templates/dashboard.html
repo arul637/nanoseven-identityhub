@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Linux Manager{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Dashboard</h1>
+    <div class="header-actions">
+        <span class="last-sync">Last sync: {{ last_sync or 'Never' }}</span>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ total_users }}</div>
+        <div class="stat-label">Total Users</div>
+    </div>
+    <div class="stat-card stat-success">
+        <div class="stat-value">{{ active_users }}</div>
+        <div class="stat-label">Active Users</div>
+    </div>
+    <div class="stat-card stat-warning">
+        <div class="stat-value">{{ locked_users }}</div>
+        <div class="stat-label">Locked Users</div>
+    </div>
+    <div class="stat-card stat-danger">
+        <div class="stat-value">{{ expired_users }}</div>
+        <div class="stat-label">Expired Users</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ total_groups }}</div>
+        <div class="stat-label">Total Groups</div>
+    </div>
+    <div class="stat-card stat-info">
+        <div class="stat-value">{{ privileged_groups }}</div>
+        <div class="stat-label">Privileged Groups</div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="card">
+        <div class="card-header">
+            <h3>Recent Activity</h3>
+            <a href="{{ url_for('audit.index') }}" class="btn btn-sm">View All</a>
+        </div>
+        <div class="card-body">
+            {% if recent_logs %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Action</th>
+                        <th>Target</th>
+                        <th>Admin</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in recent_logs %}
+                    <tr>
+                        <td><span class="badge badge-{{ 'success' if log.result == 'success' else 'danger' }}">{{ log.action }}</span></td>
+                        <td>{{ log.target }}</td>
+                        <td>{{ log.admin_username }}</td>
+                        <td class="text-muted">{{ log.created_at[:19] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">No recent activity.</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>Shell Usage</h3>
+        </div>
+        <div class="card-body">
+            {% if shell_counts %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Shell</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for shell in shell_counts %}
+                    <tr>
+                        <td><code>{{ shell.login_shell }}</code></td>
+                        <td>{{ shell.cnt }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">No data available.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

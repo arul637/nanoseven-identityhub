@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Security Policies - Linux Manager{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Security Policies</h1>
+</div>
+
+<form method="POST" class="form">
+    <div class="card">
+        <div class="card-header"><h3>Password Policies</h3></div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="min_password_length">Minimum Password Length</label>
+                    {% set v = policies|selectattr('policy_key', 'equalto', 'min_password_length')|first %}
+                    <input type="number" id="min_password_length" name="min_password_length" value="{{ v.policy_value if v else '8' }}" min="4" max="64">
+                </div>
+                <div class="form-group">
+                    <label for="password_expiry_days">Password Expiry (days)</label>
+                    {% set v = policies|selectattr('policy_key', 'equalto', 'password_expiry_days')|first %}
+                    <input type="number" id="password_expiry_days" name="password_expiry_days" value="{{ v.policy_value if v else '90' }}" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="password_history">Password History</label>
+                    {% set v = policies|selectattr('policy_key', 'equalto', 'password_history')|first %}
+                    <input type="number" id="password_history" name="password_history" value="{{ v.policy_value if v else '5' }}" min="0">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label><input type="checkbox" name="require_uppercase" value="true" {{ 'checked' if (policies|selectattr('policy_key', 'equalto', 'require_uppercase')|first).policy_value == 'true' else '' }}> Require Uppercase</label>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" name="require_lowercase" value="true" {{ 'checked' if (policies|selectattr('policy_key', 'equalto', 'require_lowercase')|first).policy_value == 'true' else '' }}> Require Lowercase</label>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" name="require_number" value="true" {{ 'checked' if (policies|selectattr('policy_key', 'equalto', 'require_number')|first).policy_value == 'true' else '' }}> Require Number</label>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" name="require_special" value="true" {{ 'checked' if (policies|selectattr('policy_key', 'equalto', 'require_special')|first).policy_value == 'true' else '' }}> Require Special Character</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h3>Account Policies</h3></div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="default_shell">Default Login Shell</label>
+                    {% set v = policies|selectattr('policy_key', 'equalto', 'default_shell')|first %}
+                    <input type="text" id="default_shell" name="default_shell" value="{{ v.policy_value if v else '/bin/bash' }}">
+                </div>
+                <div class="form-group">
+                    <label for="default_account_expiry_days">Default Account Expiry (days, 0=never)</label>
+                    {% set v = policies|selectattr('policy_key', 'equalto', 'default_account_expiry_days')|first %}
+                    <input type="number" id="default_account_expiry_days" name="default_account_expiry_days" value="{{ v.policy_value if v else '0' }}" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="default_inactive_days">Default Inactive Days</label>
+                    {% set v = policies|selectattr('policy_key', 'equalto', 'default_inactive_days')|first %}
+                    <input type="number" id="default_inactive_days" name="default_inactive_days" value="{{ v.policy_value if v else '0' }}" min="0">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="allowed_shells">Allowed Shells (comma-separated)</label>
+                {% set v = policies|selectattr('policy_key', 'equalto', 'allowed_shells')|first %}
+                <input type="text" id="allowed_shells" name="allowed_shells" value="{{ v.policy_value if v else '/bin/bash,/bin/sh,/bin/zsh,/bin/dash' }}">
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h3>Username Policies</h3></div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="min_username_length">Minimum Username Length</label>
+                    {% set v = policies|selectattr('policy_key', 'equalto', 'min_username_length')|first %}
+                    <input type="number" id="min_username_length" name="min_username_length" value="{{ v.policy_value if v else '3' }}" min="1">
+                </div>
+                <div class="form-group">
+                    <label for="max_username_length">Maximum Username Length</label>
+                    {% set v = policies|selectattr('policy_key', 'equalto', 'max_username_length')|first %}
+                    <input type="number" id="max_username_length" name="max_username_length" value="{{ v.policy_value if v else '32' }}" max="64">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="allowed_username_chars">Allowed Characters (regex pattern)</label>
+                {% set v = policies|selectattr('policy_key', 'equalto', 'allowed_username_chars')|first %}
+                <input type="text" id="allowed_username_chars" name="allowed_username_chars" value="{{ v.policy_value if v else 'a-z0-9_-' }}">
+            </div>
+            <div class="form-group">
+                <label for="reserved_usernames">Reserved Usernames (comma-separated)</label>
+                {% set v = policies|selectattr('policy_key', 'equalto', 'reserved_usernames')|first %}
+                <textarea id="reserved_usernames" name="reserved_usernames" rows="3">{{ v.policy_value if v else 'root,admin,daemon,bin' }}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h3>Group Policies</h3></div>
+        <div class="card-body">
+            <div class="form-group">
+                <label for="privileged_groups">Privileged Groups (comma-separated)</label>
+                {% set v = policies|selectattr('policy_key', 'equalto', 'privileged_groups')|first %}
+                <input type="text" id="privileged_groups" name="privileged_groups" value="{{ v.policy_value if v else 'sudo,wheel,adm,docker,root' }}">
+            </div>
+            <div class="form-group">
+                <label for="restricted_groups">Restricted Groups (comma-separated)</label>
+                {% set v = policies|selectattr('policy_key', 'equalto', 'restricted_groups')|first %}
+                <input type="text" id="restricted_groups" name="restricted_groups" value="{{ v.policy_value if v else 'sudo,wheel,root' }}">
+            </div>
+            <div class="form-group">
+                <label for="groups_require_confirmation">Groups Requiring Confirmation (comma-separated)</label>
+                {% set v = policies|selectattr('policy_key', 'equalto', 'groups_require_confirmation')|first %}
+                <input type="text" id="groups_require_confirmation" name="groups_require_confirmation" value="{{ v.policy_value if v else 'sudo,wheel,docker,root,adm' }}">
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save All Policies</button>
+    </div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/security.js') }}"></script>
+{% endblock %}

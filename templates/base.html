@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Linux User & Group Manager{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        {% if session.admin_id %}
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Linux Manager</h2>
+                {% if mock_mode %}
+                <span class="badge badge-warning">MOCK</span>
+                {% else %}
+                <span class="badge badge-success">LIVE</span>
+                {% endif %}
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('dashboard.index') }}" class="nav-item {% if request.endpoint and 'dashboard' in request.endpoint %}active{% endif %}">
+                    <span class="nav-icon">&#9679;</span> Dashboard
+                </a>
+                <a href="{{ url_for('users.index') }}" class="nav-item {% if request.endpoint and 'users' in request.endpoint %}active{% endif %}">
+                    <span class="nav-icon">&#9679;</span> User Management
+                </a>
+                <a href="{{ url_for('groups.index') }}" class="nav-item {% if request.endpoint and 'groups' in request.endpoint %}active{% endif %}">
+                    <span class="nav-icon">&#9679;</span> Group Management
+                </a>
+                <a href="{{ url_for('security.index') }}" class="nav-item {% if request.endpoint and 'security' in request.endpoint %}active{% endif %}">
+                    <span class="nav-icon">&#9679;</span> Security Policies
+                </a>
+                <a href="{{ url_for('sync.index') }}" class="nav-item {% if request.endpoint and 'sync' in request.endpoint %}active{% endif %}">
+                    <span class="nav-icon">&#9679;</span> System Sync
+                </a>
+                <a href="{{ url_for('audit.index') }}" class="nav-item {% if request.endpoint and 'audit' in request.endpoint %}active{% endif %}">
+                    <span class="nav-icon">&#9679;</span> Audit Logs
+                </a>
+                <a href="{{ url_for('system.index') }}" class="nav-item {% if request.endpoint and 'system' in request.endpoint %}active{% endif %}">
+                    <span class="nav-icon">&#9679;</span> System Info
+                </a>
+            </nav>
+        </aside>
+        {% endif %}
+
+        <main class="main-content">
+            {% if session.admin_id %}
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <span class="app-title">Linux User & Group Management</span>
+                </div>
+                <div class="top-bar-right">
+                    <span class="admin-name">{{ session.admin_username }}</span>
+                    <a href="{{ url_for('auth.logout') }}" class="btn btn-sm btn-danger">Logout</a>
+                </div>
+            </header>
+            {% endif %}
+
+            <div class="content-area">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div class="toast-container">
+                    {% for category, message in messages %}
+                    <div class="toast toast-{{ category }}">{{ message }}<span class="toast-close">&times;</span></div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

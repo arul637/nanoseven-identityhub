@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Users - Linux Manager{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>User Management</h1>
+    <a href="{{ url_for('users.create') }}" class="btn btn-primary">+ Create User</a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <form method="GET" class="search-form">
+            <input type="text" name="search" placeholder="Search users..." value="{{ search }}" class="search-input">
+            <select name="status" class="filter-select">
+                <option value="">All Status</option>
+                <option value="active" {{ 'selected' if status == 'active' }}>Active</option>
+                <option value="locked" {{ 'selected' if status == 'locked' }}>Locked</option>
+                <option value="expired" {{ 'selected' if status == 'expired' }}>Expired</option>
+            </select>
+            <button type="submit" class="btn btn-sm">Filter</button>
+        </form>
+    </div>
+    <div class="card-body">
+        {% if users %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>UID</th>
+                    <th>Home Directory</th>
+                    <th>Shell</th>
+                    <th>Status</th>
+                    <th>Groups</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td><strong>{{ user.username }}</strong></td>
+                    <td>{{ user.uid or '-' }}</td>
+                    <td class="text-muted">{{ user.home_directory }}</td>
+                    <td><code>{{ user.login_shell }}</code></td>
+                    <td>
+                        {% if user.locked %}
+                        <span class="badge badge-danger">Locked</span>
+                        {% elif user.expired %}
+                        <span class="badge badge-warning">Expired</span>
+                        {% else %}
+                        <span class="badge badge-success">Active</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ user.group_count }}</td>
+                    <td class="actions">
+                        <a href="{{ url_for('users.view', username=user.username) }}" class="btn btn-sm">View</a>
+                        <a href="{{ url_for('users.edit', username=user.username) }}" class="btn btn-sm btn-primary">Edit</a>
+                        {% if user.locked %}
+                        <form method="POST" action="{{ url_for('users.unlock', username=user.username) }}" style="display:inline">
+                            <button type="submit" class="btn btn-sm btn-success">Unlock</button>
+                        </form>
+                        {% else %}
+                        <form method="POST" action="{{ url_for('users.lock', username=user.username) }}" style="display:inline">
+                            <button type="submit" class="btn btn-sm btn-warning">Lock</button>
+                        </form>
+                        {% endif %}
+                        <a href="{{ url_for('users.change_password', username=user.username) }}" class="btn btn-sm btn-info">Password</a>
+                        <form method="POST" action="{{ url_for('users.delete', username=user.username) }}" style="display:inline" onsubmit="return confirm('Delete user {{ user.username }}? This cannot be undone.')">
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <p>No users found.</p>
+            <a href="{{ url_for('users.create') }}" class="btn btn-primary">Create First User</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/users.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}User: {{ user.username }} - Linux Manager{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>User: {{ user.username }}</h1>
+    <div class="header-actions">
+        <a href="{{ url_for('users.edit', username=user.username) }}" class="btn btn-primary">Edit</a>
+        <a href="{{ url_for('users.change_password', username=user.username) }}" class="btn btn-info">Change Password</a>
+        {% if user.locked %}
+        <form method="POST" action="{{ url_for('users.unlock', username=user.username) }}" style="display:inline">
+            <button type="submit" class="btn btn-success">Unlock</button>
+        </form>
+        {% else %}
+        <form method="POST" action="{{ url_for('users.lock', username=user.username) }}" style="display:inline">
+            <button type="submit" class="btn btn-warning">Lock</button>
+        </form>
+        {% endif %}
+        <a href="{{ url_for('users.index') }}" class="btn">Back</a>
+    </div>
+</div>
+
+<div class="detail-grid">
+    <div class="card">
+        <div class="card-header"><h3>Account Details</h3></div>
+        <div class="card-body">
+            <dl class="detail-list">
+                <dt>Username</dt><dd>{{ user.username }}</dd>
+                <dt>UID</dt><dd>{{ user.uid or 'Not set' }}</dd>
+                <dt>GID</dt><dd>{{ user.gid or 'Not set' }}</dd>
+                <dt>Full Name</dt><dd>{{ user.full_name or 'Not set' }}</dd>
+                <dt>Home Directory</dt><dd><code>{{ user.home_directory }}</code></dd>
+                <dt>Login Shell</dt><dd><code>{{ user.login_shell }}</code></dd>
+                <dt>Status</dt>
+                <dd>
+                    {% if user.locked %}
+                    <span class="badge badge-danger">Locked</span>
+                    {% elif user.expired %}
+                    <span class="badge badge-warning">Expired</span>
+                    {% else %}
+                    <span class="badge badge-success">Active</span>
+                    {% endif %}
+                </dd>
+                <dt>Account Expires</dt><dd>{{ user.account_expires or 'Never' }}</dd>
+                <dt>Inactive Days</dt><dd>{{ user.inactive_days or '0' }}</dd>
+                <dt>Created</dt><dd>{{ user.created_at[:19] }}</dd>
+                <dt>Updated</dt><dd>{{ user.updated_at[:19] if user.updated_at else 'Never' }}</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>Group Memberships ({{ groups|length }})</h3>
+        </div>
+        <div class="card-body">
+            {% if groups %}
+            <table class="table">
+                <thead><tr><th>Group</th><th>Actions</th></tr></thead>
+                <tbody>
+                    {% for g in groups %}
+                    <tr>
+                        <td>{{ g.group_name }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('users.remove_group', username=user.username) }}" style="display:inline" onsubmit="return confirm('Remove {{ user.username }} from {{ g.group_name }}?')">
+                                <input type="hidden" name="group_name" value="{{ g.group_name }}">
+                                <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">Not a member of any groups.</div>
+            {% endif %}
+            <form method="POST" action="{{ url_for('users.add_group', username=user.username) }}" class="inline-form">
+                <input type="text" name="group_name" placeholder="Group name" required>
+                <button type="submit" class="btn btn-sm btn-primary">Add to Group</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Create Group - Linux Manager{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Create Group</h1>
+    <a href="{{ url_for('groups.index') }}" class="btn btn-sm">Back to Groups</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST" class="form">
+            <div class="form-group">
+                <label for="group_name">Group Name</label>
+                <input type="text" id="group_name" name="group_name" placeholder="e.g. developers" required>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Create Group</button>
+                <a href="{{ url_for('groups.index') }}" class="btn">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
